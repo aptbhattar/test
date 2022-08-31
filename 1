@@ -1,46 +1,50 @@
-1.1 AccountProcessor
-***********************
-public class AccountProcessor {
-    @future
-    public static void countContacts(List<Id> accountIds){
-        List<Account> accounts = [Select Id, Name from Account Where Id IN : accountIds];
-        List<Account> updatedAccounts = new List<Account>();
-        for(Account account : accounts){
-           account.Number_of_Contacts__c = [Select count() from Contact Where AccountId =: account.Id];
-            System.debug('No Of Contacts = ' + account.Number_of_Contacts__c);
-            updatedAccounts.add(account);
-        }
-        update updatedAccounts;
+
+Pinned by wonder studies
+wonder studies
+2 months ago (edited)
+3.1 LeadProcessor
+*****************
+public class LeadProcessor implements Database.Batchable<sObject> { 
+   
+     public Database.QueryLocator start(Database.BatchableContext bc) {
+        // collect the batches of records or objects to be passed to execute
+          return Database.getQueryLocator([Select LeadSource From Lead ]);
     }
+    public void execute(Database.BatchableContext bc, List<Lead> leads){
+         // process each batch of records
+            for (Lead Lead : leads) {
+                lead.LeadSource = 'Dreamforce';
+            }
+        update leads;
+    }    
+    public void finish(Database.BatchableContext bc){
+      }
 
 }
 
-1.2 AccountProcessorTest
-****************************
+3.2 LeadProcessorTest
+************************
 @isTest
-public class AccountProcessorTest {
-    @isTest
-    public static void testNoOfContacts(){
-        Account a = new Account();
-        a.Name = 'Test Account';
-        Insert a;
-        
-        Contact c = new Contact();
-        c.FirstName = 'Bob';
-        c.LastName =  'Willie';
-        c.AccountId = a.Id;
-        
-        Contact c2 = new Contact();
-        c2.FirstName = 'Tom';
-        c2.LastName = 'Cruise';
-        c2.AccountId = a.Id;
-        
-        List<Id> acctIds = new List<Id>();
-        acctIds.add(a.Id);
-        
+public class LeadProcessorTest {
+    
+        @testSetup
+    static void setup() {
+        List<Lead> leads = new List<Lead>();
+        for(Integer counter=0 ;counter <200;counter++){
+            Lead lead = new Lead();
+            lead.FirstName ='FirstName';
+            lead.LastName ='LastName'+counter;
+            lead.Company ='demo'+counter;
+            leads.add(lead);
+        }        
+        insert leads;
+    }
+    
+    @isTest static void test() {
         Test.startTest();
-        AccountProcessor.countContacts(acctIds);
-        Test.stopTest();
+        LeadProcessor leadProcessor = new LeadProcessor();
+        Id batchId = Database.executeBatch(leadProcessor);
+        Test.stopTest();   
     }
 
 }
