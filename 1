@@ -1,64 +1,28 @@
-AddPrimaryContact
-***********************
-public class AddPrimaryContact implements Queueable
-{
-    private Contact c;
-    private String state;
-    public  AddPrimaryContact(Contact c, String state)
-    {
-        this.c = c;
-        this.state = state;
+DailyLeadProcessor
+*****************
+public class DailyLeadProcessor implements Schedulable  {
+    Public void execute(SchedulableContext SC){
+       List<Lead> LeadObj=[SELECT Id from Lead where LeadSource=null limit 200]; 
+        for(Lead l:LeadObj){
+            l.LeadSource='Dreamforce';
+            update l;
+        }
     }
-    public void execute(QueueableContext context) 
-    {
-         List<Account> ListAccount = [SELECT ID, Name ,(Select id,FirstName,LastName from contacts ) FROM ACCOUNT WHERE BillingState = :state LIMIT 200];
-         List<Contact> lstContact = new List<Contact>();
-         for (Account acc:ListAccount)
-         {
-                 Contact cont = c.clone(false,false,false,false);
-                 cont.AccountId =  acc.id;
-                 lstContact.add( cont );
-         }
-         
-         if(lstContact.size() >0 )
-         {
-             insert lstContact;
-         }
-             
-    }
-
 }
 
-
-
- AddPrimaryContactTest
-
-*****************
+DailyLeadProcessorTest
+********************
 @isTest
-public class AddPrimaryContactTest 
-{
-     @isTest static void TestList()
-     {
-         List<Account> Teste = new List <Account>();
-         for(Integer i=0;i<50;i++)
-         {
-             Teste.add(new Account(BillingState = 'CA', name = 'Test'+i));
-         }
-         for(Integer j=0;j<50;j++)
-         {
-             Teste.add(new Account(BillingState = 'NY', name = 'Test'+j));
-         }
-         insert Teste;
-
-         Contact co = new Contact();
-         co.FirstName='demo';
-         co.LastName ='demo';
-         insert co;
-         String state = 'CA';
-      
-          AddPrimaryContact apc = new AddPrimaryContact(co, state);
-          Test.startTest();
-            System.enqueueJob(apc);
-          Test.stopTest();
-      }
- }
+private class DailyLeadProcessorTest {
+	static testMethod void testDailyLeadProcessor() {
+		String CRON_EXP = '0 0 1 * * ?';
+		List<Lead> lList = new List<Lead>();
+	    for (Integer i = 0; i < 200; i++) {
+			lList.add(new Lead(LastName='Dreamforce'+i, Company='Test1 Inc.', Status='Open - Not Contacted'));
+		}
+		insert lList;
+		  
+		Test.startTest();
+		String jobId = System.schedule('DailyLeadProcessor', CRON_EXP, new DailyLeadProcessor()); 
+	}
+}
