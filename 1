@@ -1,11 +1,10 @@
-public class ContactSearch {
-    
-    public static List<Contact> searchForContacts(String lastName, String maillingpostalCode){
-        
-        List<Contact> contactList = [Select Id,Name from Contact where
-                                  LastName =: lastName and 
-                                  MailingPostalCode =: maillingpostalCode];
-        return contactList;
-    }
-
+public class ContactAndLeadSearch {
+  
+    public static list<list< sObject >> searchContactsAndLeads(String lastName){
+     
+        list<list< sObject >> ContactLeadList = [ Find : lastName IN ALL FIELDS
+                                                 RETURNING contact(name),
+                                                 lead (Name) ];
+      return ContactLeadList;
+  }   
 }
