@@ -1,46 +1,43 @@
-2.1 AnimalLocator
-********************
-public class AnimalLocator{
-    public static String getAnimalNameById(Integer x){
-        Http http = new Http();
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/' + x);
-        req.setMethod('GET');
-        Map<String, Object> animal= new Map<String, Object>();
-        HttpResponse res = http.send(req);
-            if (res.getStatusCode() == 200) {
-        Map<String, Object> results = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
-      animal = (Map<String, Object>) results.get('animal');
-        }
-return (String)animal.get('name');
+3.1 ParkLocator
+***************
+public class ParkLocator {
+    public static string[] country(string theCountry) {
+        ParkService.ParksImplPort  parkSvc = new  ParkService.ParksImplPort(); // remove space
+        return parkSvc.byCountry(theCountry);
     }
 }
 
-2.2 AnimalLocatorTest
-**************************
+3.2 ParkLocatorTest
+*******************
 @isTest
-private class AnimalLocatorTest{
-    @isTest static void AnimalLocatorMock1() {
-        Test.setMock(HttpCalloutMock.class, new AnimalLocatorMock());
-        string result = AnimalLocator.getAnimalNameById(3);
-        String expectedResult = 'chicken';
-        System.assertEquals(result,expectedResult );
+private class ParkLocatorTest {
+    @isTest static void testCallout() {              
+        Test.setMock(WebServiceMock.class, new ParkServiceMock ());
+        String country = 'United States';
+        List<String> result = ParkLocator.country(country);
+        List<String> parks = new List<String>{'Yellowstone', 'Mackinac National Park', 'Yosemite'};
+         System.assertEquals(parks, result); 
     }
 }
 
-
-
-2.3 AnimalLocatorMock
-*************************
+3.3 ParkServiceMock
+************************
 @isTest
-global class AnimalLocatorMock implements HttpCalloutMock {
-     // Implement this interface method
-    global HTTPResponse respond(HTTPRequest request) {
-        // Create a fake response
-        HttpResponse response = new HttpResponse();
-        response.setHeader('Content-Type', 'application/json');
-        response.setBody('{"animals": ["majestic badger", "fluffy bunny", "scary bear", "chicken", "mighty moose"]}');
-        response.setStatusCode(200);
-        return response; 
-    }
+global class ParkServiceMock implements WebServiceMock {
+   global void doInvoke(
+           Object stub,
+           Object request,
+           Map<String, Object> response,
+           String endpoint,
+           String soapAction,
+           String requestName,
+           String responseNS,
+           String responseName,
+           String responseType) {
+        // start - specify the response you want to send
+        ParkService.byCountryResponse response_x = new ParkService.byCountryResponse();
+        response_x.return_x = new List<String>{'Yellowstone', 'Mackinac National Park', 'Yosemite'};
+        // end
+        response.put('response_x', response_x); 
+   }
 }
