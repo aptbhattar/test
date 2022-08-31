@@ -1,16 +1,10 @@
-//@isTest
-public class RandomContactFactory {
-    public static List<Contact> generateRandomContacts(Integer numContactsToGenerate, String FName) {
-        List<Contact> contactList = new List<Contact>();
-        
-    for(Integer i=0;i<numContactsToGenerate;i++) {
-            Contact c = new Contact(FirstName=FName + ' ' + i, LastName = 'Contact '+i);
-            contactList.add(c);
-            System.debug(c);
+public class StringArrayTest {
+    public static List<String> generateStringArray(Integer N){
+        List<String> LisToReturn = new List<String>();
+        for(Integer i=0;i<N;i++){
+            LisToReturn.add('Test '+ i);
         }
-        //insert contactList;
-        System.debug(contactList.size());
-        return contactList;
+        return LisToReturn;
     }
 
 }
