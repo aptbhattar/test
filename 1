@@ -1,39 +1,21 @@
 disTest
-y private class TestVerifyDate{
+2
+" private class TestRestrictContactByName
+{
+3
+4
+static testMethod void metodoTest()
+5
 6
-@isTest static void Test_ CheckDates_casel(){
-Date D = VerifyDate.CheckDates (date.parse ('01/01/2020'), date.parse('01/05/2020)) ;
-System.assertEquals (date.parse('01/05/2020), D) ;
-}
+7
+8
 9
+List<Contact> listContact= new List‹Contact> ();
+Contact c1 = new Contact (FirstName='Francesco', LastName='Riggio'
+email='Test@test.com');
+Contact c2 = new Contact(FirstName='Francescol', LastName
+"INVALIDNAME' , email='Test@test.com') ;
 10
 11
-12
-13
-14 r
-15
-16
-17
-18
-19 •
-20
-21
-22
-23
-24 -
-25
-1003
-@isTest static void Test_CheckDates_case2(){
-Date D = VerifyDate. CheckDates (date.parse('01/01/2020'), date.parse('05/05/2020)) ;
-System.assertEquals(date.parse('01/31/2020'), D);
-}
-@isTest static void Test _DateWithin30Days_casel(){
-Boolean flag = VerifyDate.DateWithin30Days (date.parse('01/01/2020'), date.parse('12/30/2019 )):
-System.assertEquals(false, flag);
-7
-disTest static void Test DateWithin30Days case20){
-Boolean flag = VerifyDate.DateWithin3@Days(date.parse('01/01/2020), date.parse('02/02/20')) ;
-System.assertEquals (false, flag);
-}
-QisTest static void Test DateWithin3@Days case3(0){
-Boolean flag = VerifyDate.DateWithin3@Days (date.parse('01/01/2020'), date.parse('01/15/2020'))
+listContact.add(c1);
+listContact.add(c2);
