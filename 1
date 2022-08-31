@@ -1,28 +1,46 @@
-DailyLeadProcessor
-*****************
-public class DailyLeadProcessor implements Schedulable  {
-    Public void execute(SchedulableContext SC){
-       List<Lead> LeadObj=[SELECT Id from Lead where LeadSource=null limit 200]; 
-        for(Lead l:LeadObj){
-            l.LeadSource='Dreamforce';
-            update l;
+2.1 AnimalLocator
+********************
+public class AnimalLocator{
+    public static String getAnimalNameById(Integer x){
+        Http http = new Http();
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/' + x);
+        req.setMethod('GET');
+        Map<String, Object> animal= new Map<String, Object>();
+        HttpResponse res = http.send(req);
+            if (res.getStatusCode() == 200) {
+        Map<String, Object> results = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
+      animal = (Map<String, Object>) results.get('animal');
         }
+return (String)animal.get('name');
     }
 }
 
-DailyLeadProcessorTest
-********************
+2.2 AnimalLocatorTest
+**************************
 @isTest
-private class DailyLeadProcessorTest {
-	static testMethod void testDailyLeadProcessor() {
-		String CRON_EXP = '0 0 1 * * ?';
-		List<Lead> lList = new List<Lead>();
-	    for (Integer i = 0; i < 200; i++) {
-			lList.add(new Lead(LastName='Dreamforce'+i, Company='Test1 Inc.', Status='Open - Not Contacted'));
-		}
-		insert lList;
-		  
-		Test.startTest();
-		String jobId = System.schedule('DailyLeadProcessor', CRON_EXP, new DailyLeadProcessor()); 
-	}
+private class AnimalLocatorTest{
+    @isTest static void AnimalLocatorMock1() {
+        Test.setMock(HttpCalloutMock.class, new AnimalLocatorMock());
+        string result = AnimalLocator.getAnimalNameById(3);
+        String expectedResult = 'chicken';
+        System.assertEquals(result,expectedResult );
+    }
+}
+
+
+
+2.3 AnimalLocatorMock
+*************************
+@isTest
+global class AnimalLocatorMock implements HttpCalloutMock {
+     // Implement this interface method
+    global HTTPResponse respond(HTTPRequest request) {
+        // Create a fake response
+        HttpResponse response = new HttpResponse();
+        response.setHeader('Content-Type', 'application/json');
+        response.setBody('{"animals": ["majestic badger", "fluffy bunny", "scary bear", "chicken", "mighty moose"]}');
+        response.setStatusCode(200);
+        return response; 
+    }
 }
